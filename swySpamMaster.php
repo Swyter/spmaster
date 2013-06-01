@@ -47,7 +47,7 @@ $wgHooks['AbortNewAccount'][] = function( $user, &$message )
     }
     
     #From SO: http://codereview.stackexchange.com/a/13559; adapted w/ ternary op
-    function df($var, $def)
+    function df($var, $def='?')
     {
       return empty($var) ? $def : $var;
     }
@@ -141,11 +141,11 @@ $wgHooks['AbortNewAccount'][] = function( $user, &$message )
        
     
     $message ="<center><strong>Looks like you have a spammey name, how rude :)</strong></center>
-               <hr/><em>$username</em> | has ".$entropy." of entropy, $points points, ". ($points>=1 ? "banned" : "good guy") ."
+               <hr/><em>$username</em> | has $entropy of entropy, $points points, ". ($points>=1 ? "banned" : "good guy") ."
                <br/><ol>$diag</ol>";
                
     $h=fopen(dirname(__FILE__)."/_".($points>=1 ? "block" : "pass")."list.log", 'a' ) or die("Cannot write the bot block log");
-       fwrite($h,utf8_encode(sprintf("\n%s%s\n\n     ip: %s\n    uag: %s\n   fwip: %s\n",date("Y-m-d h:i:s A |"),$username,df($_SERVER['HTTP_USER_AGENT'], '?'),df($_SERVER['REMOTE_ADDR'], '?'),df($_SERVER['HTTP_X_FORWARDED_FOR'], '?'))));
+       fwrite($h,utf8_encode(sprintf("\n%s%s\n\n     ip: %s\n    uag: %s\n   fwip: %s\n",date("Y-m-d h:i:s A |"),$username,df($_SERVER['HTTP_USER_AGENT']),df($_SERVER['REMOTE_ADDR']),df($_SERVER['HTTP_X_FORWARDED_FOR']))));
        fclose($h);
     
 
