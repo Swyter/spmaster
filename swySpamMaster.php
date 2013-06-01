@@ -93,6 +93,7 @@ $wgHooks['AbortNewAccount'][] = function( $user, &$message )
      Orfuuwsil -- 4/5 -- 9  -- ouui -- rfsl
      Bqltuyhnuz-- 8/2 -- 10 -- uu   -- Bqltyhnz
      Damiel    -- counterexample
+     Swyter    -- counterexample
      TJ        -- counterexample
      Michael   -- counterexample
      Protu     -- counterexample
@@ -103,9 +104,9 @@ $wgHooks['AbortNewAccount'][] = function( $user, &$message )
      
   */
 
-    spmatch('/^[A-Z][a-z]{5,9}$/')==1 and
-   (spmatch('/[^aeiou\s\d]{4,}/' )>0  or
-    spmatch('/[^aeiou\s\d]{3}/'  )>1)
+    spmatch('/^[A-Z][a-z]{5,9}$/' )==1 and
+   (spmatch('/[^aeiouy\s\d]{4,}/' )>=1  or
+    spmatch('/[^aeiouy\s\d]{3}/'  )>=2)
      and $diag.="<li>Random 6-10char, lots of repeated non-vocals" and $points++;
 
 
@@ -114,16 +115,29 @@ $wgHooks['AbortNewAccount'][] = function( $user, &$message )
   */
   
     $entropy = entropy($username);
-    $entropy <= 4.4 or
+    $entropy <= 3.4 or
     $entropy >= 0.4
      and $diag.="<li>Entropy out of threshold" and $points++;
+     
+  /*
+    -NEW- Repeating chars
+  */
+    
+    $size = strlen($username);
+    foreach (count_chars($username, 1) as $v)
+    {
+       if ($v/$size > .4)
+       {
+          $diag.="<li>So many repeated chars" and $points++;
+          break;
+       }
+    }
+       
     
     $message ="<center><strong>Looks like you have a spammey name, how rude :)</strong></center>
                <hr/><em>$username</em> | has ".$entropy." of entropy, $points points, ". ($points>=1 ? "banned" : "good guy") ."
                <br/><ol>$diag</ol>";
-    
-    
-    
+               
     $h=fopen(dirname(__FILE__)."/_".($points>=1 ? "block" : "pass")."list.log", 'a' ) or die("Cannot write the bot block log");
        fwrite($h,utf8_encode(sprintf("%s%s\nuser agent:%s ip:%s forwarded ip:%s\n",date("Y-m-d h:i:s A |"),$username,$_SERVER['HTTP_USER_AGENT'],$_SERVER['REMOTE_ADDR'],$_SERVER['HTTP_X_FORWARDED_FOR'])));
        fclose($h);
