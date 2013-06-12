@@ -138,6 +138,22 @@ $wgHooks['AbortNewAccount'][] = function( $user, &$message )
           break;
        }
     }
+    
+  /*
+    -NEW- StopForumSpam detection
+  */
+    include('lib.stopforumspam.php');
+    $sfs = new StopForumSpam();
+    $args = array('email'    => $user->getEmail(),
+                  'ip'       => df($_SERVER['HTTP_X_FORWARDED_FOR'],$_SERVER['REMOTE_ADDR']),
+                  'username' => $user->getName()
+    );
+    $spamcheck = $sfs->is_spammer( $args );
+    $spamcheck and $diag.="<li>Looks like your IP, username or e-mail is in StopForumSpam, bad news!" and $points++;
+    
+    
+  
+  
        
     /* <style> ftw! it's official, mediawiki sucks ® */
     $points>=1 and print("<style>
@@ -146,7 +162,7 @@ $wgHooks['AbortNewAccount'][] = function( $user, &$message )
                                          border-color:    #645 !important;
                                          padding-right:  135px !important;
                                          
-                                         transition: all .5s linear !important; /* because i can! */ }
+                                         transition: opacity .5s linear !important; /* because i can! */ }
 
                     div.errorbox:hover { background-size: 40% !important;
                                          opacity: .7 !important; }
@@ -161,7 +177,7 @@ $wgHooks['AbortNewAccount'][] = function( $user, &$message )
                <br/><ol>$diag</ol>";
                
     $h=fopen(dirname(__FILE__)."/_".($points>=1 ? "block" : "pass")."list.log", 'a' ) or die("Cannot write the bot block log");
-       fwrite($h,utf8_encode(sprintf("\n%s%s\n\n     ip: %s\n    uag: %s\n   fwip: %s\n",date("Y-m-d h:i:s A |"),$username,df($_SERVER['HTTP_USER_AGENT']),df($_SERVER['REMOTE_ADDR']),df($_SERVER['HTTP_X_FORWARDED_FOR']))));
+       fwrite($h,utf8_encode(sprintf("\n%s%s\n\n    uag: %s\n     ip: %s\n    sfs: %d\n   fwip: %s\n",date("Y-m-d h:i:s A |"),$username,df($_SERVER['HTTP_USER_AGENT']),df($_SERVER['REMOTE_ADDR']),$spamcheck,df($_SERVER['HTTP_X_FORWARDED_FOR']))));
        fclose($h);
     
 
